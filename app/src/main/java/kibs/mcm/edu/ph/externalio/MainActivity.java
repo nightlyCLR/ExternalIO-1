@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-
         if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
             btnWri.setEnabled(false);
         }else {
