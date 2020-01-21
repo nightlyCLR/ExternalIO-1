@@ -22,9 +22,10 @@ public class MainActivity extends AppCompatActivity {
     static final int READ_BLOCK_SIZE = 100;
 
     private String filename = "Cardoza.txt";
-    private String filepath = "Scandal";
+    private String filepath = "ScandalousVideos";
     File myExternalFile;
     String myData = "";
+
 
 
     @Override
@@ -34,10 +35,20 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
         final EditText txtbox = findViewById(R.id.txtbox);
         final Button btnClr = findViewById(R.id.btnClr);
         final Button btnRea = findViewById(R.id.btnRea);
         final Button btnWri = findViewById(R.id.btnWri);
+
+        if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
+            btnWri.setEnabled(false);
+        }else {
+            myExternalFile = new File(getExternalFilesDir(filepath), filename);
+        }
+
+
 
         btnClr.setOnClickListener(
                 new View.OnClickListener() {
@@ -51,27 +62,7 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        try {
-                            FileInputStream fis = new FileInputStream(myExternalFile);
-                            DataInputStream in = new DataInputStream(fis);
-                            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                            String strLine;
-                            while ((strLine = br.readLine()) != null) {
-                                myData = myData + strLine;
-                            }
-                            in.close();
-                        }
-                        catch (IOException e) {e.printStackTrace();}
-                        txtbox.setText(myData);
-                        Toast.makeText(getBaseContext(), "File data retrieved from Internal Storage", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
 
-        btnWri.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
                         try {
                             FileInputStream fis = new FileInputStream(myExternalFile);
                             DataInputStream in = new DataInputStream(fis);
@@ -82,12 +73,25 @@ public class MainActivity extends AppCompatActivity {
                                 myData = myData + strLine;
                             }
                             in.close();
-                            Toast.makeText(getBaseContext(), "File saved successfully!", Toast.LENGTH_SHORT).show();
-                        }
-                        catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        } catch (IOException e) {e.printStackTrace();}
                         txtbox.setText(myData);
+                        Toast.makeText(getBaseContext(), "File data retrieved from External Storage", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+        btnWri.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        try {
+                            FileOutputStream fos = new FileOutputStream(myExternalFile);
+                            fos.write(txtbox.getText().toString().getBytes());
+                            fos.close();
+                            Toast.makeText(getBaseContext(), "File saved successfully!", Toast.LENGTH_SHORT).show();
+
+                        } catch (IOException e) { e.printStackTrace();}
                     }
                 }
         );
@@ -96,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
         }else {
             myExternalFile = new File(getExternalFilesDir(filepath), filename);
         }
+
     }
 
     public static boolean isExternalStorageReadOnly() {
